@@ -1,13 +1,19 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+// import fs from "fs";
 
 const app = express();
+
+// const options = {
+//     key: fs.readFileSync('path/to/your-key.pem'),
+//     cert: fs.readFileSync('path/to/your-cert.pem'),
+//   };
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:8000"],
+        origin: ["http://localhost:3000"],
         methods: ["GET", "POST"]
     }
 });

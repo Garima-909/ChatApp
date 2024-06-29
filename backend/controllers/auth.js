@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import generateTokenAndSetCookie from "../uitls/generateToken.js";
+import bcrypt from "bcrypt";
 
 export const login = async(req, res) => {
     try {
@@ -66,7 +67,8 @@ export const logout = async(req, res) => {
 
 export const signup = async(req, res) => {
     try {
-		const { fullName, username, password, confirmPassword, gender } = req.body;
+		console.log(1);
+		const { fullName, username,email, password, confirmPassword, gender } = req.body;
 
 		if (password !== confirmPassword) {
 			return res.status(400).json({ error: "Passwords don't match" });
@@ -84,12 +86,16 @@ export const signup = async(req, res) => {
 
 		// https://avatar-placeholder.iran.liara.run/
 
-		const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-		const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+		// const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+		// const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+
+		const boyProfilePic = `https://robohash.org/${username}`;
+		const girlProfilePic = `https://robohash.org/${username}`;
 
 		const newUser = new User({
 			fullName,
 			username,
+			email,
 			password: hashedPassword,
 			gender,
 			profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
@@ -110,7 +116,7 @@ export const signup = async(req, res) => {
 			res.status(400).json({ error: "Invalid user data" });
 		}
 	} catch (error) {
-		console.log("Error in signup controller", error.message);
+		console.log("Error in signup controller", error);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
