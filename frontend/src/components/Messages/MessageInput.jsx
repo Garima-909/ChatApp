@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BsSend } from "react-icons/bs";
 import useSendMessage from "../../hooks/useSendMessage";
+import { MdAddPhotoAlternate } from "react-icons/md";
 
 const MessageInput = () => {
 	const [message, setMessage] = useState("");
@@ -14,20 +15,35 @@ const MessageInput = () => {
 	};
 
 	return (
+		
+
 		<form className='px-4 my-3' onSubmit={handleSubmit}>
-			<div className='w-full relative'>
+			<div className='w-full relative flex items-center'>
 				<input
-					type='text'
-					className='border text-sm rounded-lg block w-full p-2.5  bg-gray-700 border-gray-600 text-white'
-					placeholder='Send a message'
-					value={message}
-					onChange={(e) => setMessage(e.target.value)}
+				type='text'
+				className='border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 text-white'
+				placeholder='Send a message'
+				value={message}
+				onChange={(e) => setMessage(e.target.value)}
 				/>
-				<button type='submit' className='absolute inset-y-0 end-0 flex items-center pe-3'>
+				<div className="absolute inset-y-0 right-0 flex items-center space-x-2 pr-3">
+				<label htmlFor="file-upload" className="cursor-pointer">
+					<MdAddPhotoAlternate className="text-white-900 h-6 w-6" />
+				</label>
+				<input
+					id="file-upload"
+					type="file"
+					accept=".pdf, .jpg, .png"
+					className="hidden"
+					// onChange={handleFileChange}
+				/>
+				<button type='submit' className='flex items-center justify-center p-2  text-white rounded-full'>
 					{loading ? <div className='loading loading-spinner'></div> : <BsSend />}
 				</button>
+				</div>
 			</div>
-		</form>
+			</form>
+
 	);
 };
 export default MessageInput;

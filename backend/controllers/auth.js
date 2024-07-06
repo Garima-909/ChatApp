@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import generateTokenAndSetCookie from "../uitls/generateToken.js";
 import bcrypt from "bcrypt";
+import cloudinary from "cloudinary";
 
 export const login = async(req, res) => {
     try {
@@ -67,10 +68,12 @@ export const logout = async(req, res) => {
 
 export const signup = async(req, res) => {
     try {
-		console.log(1);
-		const { fullName, username,email, password, confirmPassword, gender } = req.body;
+		const { fullName, username, email, password, confirmPassword, gender } = req.body;
+		console.log(req.body);
 
 		if (password !== confirmPassword) {
+			console.log("p is : " , password);
+			console.log("cp is : ", confirmPassword);
 			return res.status(400).json({ error: "Passwords don't match" });
 		}
 
@@ -84,8 +87,38 @@ export const signup = async(req, res) => {
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
 
+		let profilePic = "";
+		console.log(req.files);
+		if(!req.files || Object.keys(req.files).length === 0){
+			profilePic = `https://robohash.org/${username}`;
+		}
+		else{
+			const dp = req.files.profilePic;
+			// console.log("------------------");
+			// console.log(dp);
+			// console.log("------------------");
+			const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
 
-		const profilePic = `https://robohash.org/${username}`;
+			if(!allowedFormats.includes(dp.mimetype)){
+				return res.status(400).json({error: "Invalid file type !"});
+			}
+
+			const cloudinaryResponse = await cloudinary.uploader.upload(dp.tempFilePath, {
+				folder: 'chatApp', // optional: specify a folder in Cloudinary
+				use_filename: true, // optional: use the original filename
+				unique_filename: false // optional: do not use unique filenames
+			});
+
+
+			if(!cloudinaryResponse || cloudinaryResponse.error){
+				console.error("Cloudinary error : ", cloudinaryResponse.error || "Unknown error");
+				return res.status(400).json({error: "Failed to save profile pic !"});
+			}
+
+			profilePic = cloudinaryResponse.secure_url;
+		}
+		
+		
 
 		const newUser = new User({
 			fullName,
@@ -111,7 +144,7 @@ export const signup = async(req, res) => {
 			res.status(400).json({ error: "Invalid user data" });
 		}
 	} catch (error) {
-		console.log("Error in signup controller", error);
+		console.log("Error in signup controller : ", error.message);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
